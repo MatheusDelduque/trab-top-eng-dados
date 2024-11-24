@@ -4,7 +4,7 @@ source("eleitorado/funcoes_dataset.R")
 # -------------------------
 # Caminho do arquivo
 # -------------------------
-file_path <- "csvs/perfil_eleitor_secao_ATUAL_RR.csv"
+file_path <- "csvs/perfil_eleitor_secao_ATUAL_AM.csv"
  
 # -------------------------
 # 1. Carregar e processar o dataset

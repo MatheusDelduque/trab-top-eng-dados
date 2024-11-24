@@ -1,5 +1,5 @@
 # Carregar as funções do arquivo funcoes_dataset.R
-source("funcoes_dataset.R")
+source("eleitorado/funcoes_dataset.R")
 library(ggplot2)
 
 # -------------------------

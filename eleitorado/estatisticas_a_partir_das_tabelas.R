@@ -44,38 +44,41 @@ calcular_moda <- function(vetor) {
 
 # Estatísticas para eleitores por sexo
 estatisticas_sexo <- tabela_sexo %>%
+  group_by(DS_GENERO) %>%
   summarise(
     Media = mean(Total_Eleitores),
     Mediana = median(Total_Eleitores),
     Moda = calcular_moda(Total_Eleitores),
     Maximo = max(Total_Eleitores),
     Minimo = min(Total_Eleitores),
-    Desvio_Padrao = sd(Total_Eleitores),
-    Variancia = var(Total_Eleitores)
+    Desvio_Padrao = ifelse(n() > 1, sd(Total_Eleitores, na.rm = TRUE), 0),
+    Variancia = ifelse(n() > 1, var(Total_Eleitores, na.rm = TRUE), 0)
   )
 
 # Estatísticas para eleitores por município
 estatisticas_municipio <- tabela_municipio %>%
+  group_by(NM_MUNICIPIO) %>%
   summarise(
     Media = mean(Total_Eleitores),
     Mediana = median(Total_Eleitores),
     Moda = calcular_moda(Total_Eleitores),
     Maximo = max(Total_Eleitores),
     Minimo = min(Total_Eleitores),
-    Desvio_Padrao = sd(Total_Eleitores),
-    Variancia = var(Total_Eleitores)
+    Desvio_Padrao = ifelse(n() > 1, sd(Total_Eleitores, na.rm = TRUE), 0),
+    Variancia = ifelse(n() > 1, var(Total_Eleitores, na.rm = TRUE), 0)
   )
 
 # Estatísticas para eleitores por faixa etária
 estatisticas_faixa_etaria <- tabela_faixa_etaria %>%
+  group_by(DS_FAIXA_ETARIA) %>%
   summarise(
     Media = mean(Total_Eleitores),
     Mediana = median(Total_Eleitores),
     Moda = calcular_moda(Total_Eleitores),
     Maximo = max(Total_Eleitores),
     Minimo = min(Total_Eleitores),
-    Desvio_Padrao = sd(Total_Eleitores),
-    Variancia = var(Total_Eleitores)
+    Desvio_Padrao = ifelse(n() > 1, sd(Total_Eleitores, na.rm = TRUE), 0),
+    Variancia = ifelse(n() > 1, var(Total_Eleitores, na.rm = TRUE), 0)
   )
 
 # -------------------------

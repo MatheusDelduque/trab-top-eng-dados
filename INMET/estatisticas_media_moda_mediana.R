@@ -28,51 +28,59 @@ source("INMET/funcoes_dataset.R")
    df_reduzido <- reduzir_dataset(df_inicial)
    df_filtrado <- filtrar_invalidos(df_reduzido)
    
+   # Garantir que as colunas de temperatura sejam numéricas
+   df_filtrado <- df_filtrado %>%
+     mutate(
+       TEMPERATURA_DO_AR_BULBO_SECO = as.numeric(TEMPERATURA_DO_AR_BULBO_SECO),
+       TEMPERATURA_MAXIMA_NA_HORA_ANT = as.numeric(TEMPERATURA_MAXIMA_NA_HORA_ANT),
+       TEMPERATURA_MINIMA_NA_HORA_ANT = as.numeric(TEMPERATURA_MINIMA_NA_HORA_ANT)
+     )
+   
    # Tabelas agrupadas (médias por data)
    tabela_ponto <- df_filtrado %>%
      group_by(Data) %>%
-     summarise(Total = mean(TEMPERATURA_DO_PONTO_DE_ORVALHO, na.rm = TRUE))
+     summarise(Total = mean(TEMPERATURA_DO_AR_BULBO_SECO, na.rm = TRUE))
    
    tabela_ponto_max <- df_filtrado %>%
      group_by(Data) %>%
-     summarise(Total = mean(TEMPERATURA_ORVALHO_MAX_NA_HORA_ANT, na.rm = TRUE))
+     summarise(Total = mean(TEMPERATURA_MAXIMA_NA_HORA_ANT, na.rm = TRUE))
    
    tabela_ponto_min <- df_filtrado %>%
      group_by(Data) %>%
-     summarise(Total = mean(TEMPERATURA_ORVALHO_MIN_NA_HORA_ANT, na.rm = TRUE))
+     summarise(Total = mean(TEMPERATURA_MINIMA_NA_HORA_ANT, na.rm = TRUE))
    
    # Estatísticas básicas para cada tabela
    estatisticas_ponto <- tabela_ponto %>%
      summarise(
-       Media = mean(Total),
-       Mediana = median(Total),
+       Media = mean(Total, na.rm = TRUE),
+       Mediana = median(Total, na.rm = TRUE),
        Moda = calcular_moda(Total),
-       Maximo = max(Total),
-       Minimo = min(Total),
-       Desvio_Padrao = sd(Total),
-       Variancia = var(Total)
+       Maximo = max(Total, na.rm = TRUE),
+       Minimo = min(Total, na.rm = TRUE),
+       Desvio_Padrao = sd(Total, na.rm = TRUE),
+       Variancia = var(Total, na.rm = TRUE)
      )
    
    estatisticas_ponto_max <- tabela_ponto_max %>%
      summarise(
-       Media = mean(Total),
-       Mediana = median(Total),
+       Media = mean(Total, na.rm = TRUE),
+       Mediana = median(Total, na.rm = TRUE),
        Moda = calcular_moda(Total),
-       Maximo = max(Total),
-       Minimo = min(Total),
-       Desvio_Padrao = sd(Total),
-       Variancia = var(Total)
+       Maximo = max(Total, na.rm = TRUE),
+       Minimo = min(Total, na.rm = TRUE),
+       Desvio_Padrao = sd(Total, na.rm = TRUE),
+       Variancia = var(Total, na.rm = TRUE)
      )
    
    estatisticas_ponto_min <- tabela_ponto_min %>%
      summarise(
-       Media = mean(Total),
-       Mediana = median(Total),
+       Media = mean(Total, na.rm = TRUE),
+       Mediana = median(Total, na.rm = TRUE),
        Moda = calcular_moda(Total),
-       Maximo = max(Total),
-       Minimo = min(Total),
-       Desvio_Padrao = sd(Total),
-       Variancia = var(Total)
+       Maximo = max(Total, na.rm = TRUE),
+       Minimo = min(Total, na.rm = TRUE),
+       Desvio_Padrao = sd(Total, na.rm = TRUE),
+       Variancia = var(Total, na.rm = TRUE)
      )
    
    # Salva os resultados em uma lista
@@ -89,13 +97,12 @@ source("INMET/funcoes_dataset.R")
  for (cidade in names(resultados)) {
    cat("### Estatísticas para:", cidade, "###\n")
    
-   cat("\n--- Ponto de orvalho ---\n")
+   cat("\n--- Temperatura ambiente ---\n")
    print(resultados[[cidade]]$estatisticas_ponto)
    
-   cat("\n--- Ponto de orvalho máxima ---\n")
+   cat("\n--- Temperatura máxima ---\n")
    print(resultados[[cidade]]$estatisticas_ponto_max)
    
-   cat("\n--- Ponto de orvalho mínima ---\n")
+   cat("\n--- Temperatura mínima ---\n")
    print(resultados[[cidade]]$estatisticas_ponto_min)
  }
- 

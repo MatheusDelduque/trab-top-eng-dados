@@ -39,5 +39,4 @@ df_temperatura_max_sp <- filtrar_temperatura_max(df_filtrado_sp)
 df_temperatura_min_sp <- filtrar_temperatura_min(df_filtrado_sp)
 df_temperatura_med_sp <- filtrar_temperatura_med(df_filtrado_sp)
 
-#----------------- media/moda/mediana
 

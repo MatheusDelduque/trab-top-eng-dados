@@ -15,9 +15,9 @@ reduzir_dataset <- function(df) {
     select(
       Data,
       Hora_UTC,
-      TEMPERATURA_DO_PONTO_DE_ORVALHO,
-      TEMPERATURA_ORVALHO_MAX_NA_HORA_ANT,
-      TEMPERATURA_ORVALHO_MIN_NA_HORA_ANT
+      TEMPERATURA_DO_AR_BULBO_SECO,
+      TEMPERATURA_MAXIMA_NA_HORA_ANT,
+      TEMPERATURA_MINIMA_NA_HORA_ANT
     )
 }
 
@@ -25,9 +25,10 @@ reduzir_dataset <- function(df) {
 filtrar_invalidos <- function(df) {
   df %>%
     filter(
-      TEMPERATURA_DO_PONTO_DE_ORVALHO != " ",
-      TEMPERATURA_ORVALHO_MAX_NA_HORA_ANT != " ",
-      TEMPERATURA_ORVALHO_MIN_NA_HORA_ANT != " "
+      TEMPERATURA_DO_AR_BULBO_SECO != " ",
+      TEMPERATURA_MAXIMA_NA_HORA_ANT != " ",
+      TEMPERATURA_MINIMA_NA_HORA_ANT != " ",
+      TEMPERATURA_MINIMA_NA_HORA_ANT != "-"
     )
 }
 
@@ -46,16 +47,16 @@ filtrar_criterios_horario <- function(df) {
 }
 filtrar_temperatura_max <- function(df){
   dados_janeiro <- df %>%
-    slice_max(order_by = TEMPERATURA_ORVALHO_MAX_NA_HORA_ANT, n = 1)  # Seleciona a maior temperatura
+    slice_max(order_by = TEMPERATURA_MAXIMA_NA_HORA_ANT, n = 1)  # Seleciona a maior temperatura
   print(dados_janeiro)
 }
 filtrar_temperatura_min <- function(df){
   dados_janeiro <- df %>%
-    slice_max(order_by = TEMPERATURA_ORVALHO_MIN_NA_HORA_ANT, n = 1)  # Seleciona a maior temperatura
+    slice_max(order_by = TEMPERATURA_MINIMA_NA_HORA_ANT, n = 1)  # Seleciona a maior temperatura
   print(dados_janeiro)
 }
 filtrar_temperatura_med <- function(df){
   # Calcula a média
-  media_temperatura <- mean(df$TEMPERATURA_DO_PONTO_DE_ORVALHO, na.rm = TRUE)
+  media_temperatura <- mean(df$TEMPERATURA_DO_AR_BULBO_SECO, na.rm = TRUE)
   print(media_temperatura)
 }

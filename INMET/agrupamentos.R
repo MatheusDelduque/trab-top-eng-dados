@@ -1,48 +1,106 @@
+library(lubridate)
+library(dplyr)
 # Carregar as funções do arquivo funcoes_dataset.R
 source("INMET/funcoes_dataset.R")
 # editaaaaar
-# -------------------------
+
+#--------------------------
 # Caminho do arquivo
 # -------------------------
-file_path <- "csvs/perfil_eleitor_secao_ATUAL_RR.csv"
+file_path_rio_de_janeiro <- "csvs/INMET_SE_RJ_A621_RIO DE JANEIRO - VILA MILITAR_01-01-2023_A_31-12-2023.CSV"
+file_path_sao_paulo <- "csvs/INMET_SE_SP_A701_SAO PAULO - MIRANTE_01-01-2023_A_31-12-2023.CSV"
 
 # -------------------------
-# 1. Carregar e processar o dataset
+# 1. Lista de arquivos e cidades
 # -------------------------
-df_inicial <- carregar_dataset(file_path)     # Carrega o dataset completo
-df_reduzido <- reduzir_dataset(df_inicial)    # Reduz às colunas requeridas
-df_filtrado <- filtrar_invalidos(df_reduzido) # Remove linhas inválidas
+arquivos <- list(
+  rio_de_janeiro = file_path_rio_de_janeiro,
+  sao_paulo = file_path_sao_paulo
+)
 
-# -------------------------
-# 2. Agrupamento e Cálculo do Total de Eleitores
-# -------------------------
-
-# Agrupamento por município
-tabela_municipio <- df_filtrado %>%
-  group_by(NM_MUNICIPIO) %>%
-  summarise(Total_Eleitores = sum(QT_ELEITORES_PERFIL, na.rm = TRUE)) %>%
-  arrange(desc(Total_Eleitores))
-
-# Agrupamento por grau de instrução
-tabela_grau_instrucao <- df_filtrado %>%
-  group_by(DS_GRAU_ESCOLARIDADE) %>%
-  summarise(Total_Eleitores = sum(QT_ELEITORES_PERFIL, na.rm = TRUE)) %>%
-  arrange(desc(Total_Eleitores))
-
-# Agrupamento por município e grau de instrução
-tabela_municipio_grau_instrucao <- df_filtrado %>%
-  group_by(NM_MUNICIPIO, DS_GRAU_ESCOLARIDADE) %>%
-  summarise(Total_Eleitores = sum(QT_ELEITORES_PERFIL, na.rm = TRUE)) %>%
-  arrange(desc(Total_Eleitores))
+# Lista para armazenar os resultados
+resultados <- list()
 
 # -------------------------
-# 3. Exibir Resultados
+# Função para criar agrupamentos temporais
 # -------------------------
-cat("### Total de Eleitores por Município ###\n")
-print(tabela_municipio)
+agrupar_temporais <- function(df) {
+  # Agrupamento horário
+  horario <- df %>%
+    mutate(Hora = as.numeric(substr(Hora_UTC, 1, 2))) %>%
+    group_by(Hora) %>%
+    summarise(Media_Temperatura = mean(TEMPERATURA_DO_PONTO_DE_ORVALHO, na.rm = TRUE))
+  
+  # Agrupamento diário
+  diario <- df %>%
+    group_by(Data = as.Date(Data)) %>%
+    summarise(Media_Temperatura = mean(TEMPERATURA_DO_PONTO_DE_ORVALHO, na.rm = TRUE))
+  
+  # Agrupamento semanal
+  semanal <- df %>%
+    group_by(Semana = floor_date(Data, unit = "week")) %>%
+    summarise(Media_Temperatura = mean(TEMPERATURA_DO_PONTO_DE_ORVALHO, na.rm = TRUE))
+  
+  # Agrupamento mensal
+  mensal <- df %>%
+    group_by(Mes = floor_date(Data, unit = "month")) %>%
+    summarise(Media_Temperatura = mean(TEMPERATURA_DO_PONTO_DE_ORVALHO, na.rm = TRUE))
+  
+  # Agrupamento bimestral
+  bimestral <- df %>%
+    mutate(Bimestre = (month(Data) + 1) %/% 2) %>%
+    group_by(Bimestre, Ano = year(Data)) %>%
+    summarise(Media_Temperatura = mean(TEMPERATURA_DO_PONTO_DE_ORVALHO, na.rm = TRUE))
+  
+  # Agrupamento trimestral
+  trimestral <- df %>%
+    mutate(Trimestre = (month(Data) - 1) %/% 3 + 1) %>%
+    group_by(Trimestre, Ano = year(Data)) %>%
+    summarise(Media_Temperatura = mean(TEMPERATURA_DO_PONTO_DE_ORVALHO, na.rm = TRUE))
+  
+  # Agrupamento semestral
+  semestral <- df %>%
+    mutate(Semestre = (month(Data) - 1) %/% 6 + 1) %>%
+    group_by(Semestre, Ano = year(Data)) %>%
+    summarise(Media_Temperatura = mean(TEMPERATURA_DO_PONTO_DE_ORVALHO, na.rm = TRUE))
+  
+  # Agrupamento anual
+  anual <- df %>%
+    group_by(Ano = year(Data)) %>%
+    summarise(Media_Temperatura = mean(TEMPERATURA_DO_PONTO_DE_ORVALHO, na.rm = TRUE))
+  
+  # Retorna uma lista com todas as tabelas
+  list(
+    horario = horario,
+    diario = diario,
+    semanal = semanal,
+    mensal = mensal,
+    bimestral = bimestral,
+    trimestral = trimestral,
+    semestral = semestral,
+    anual = anual
+  )
+}
 
-cat("\n### Total de Eleitores por Grau de Instrução ###\n")
-print(tabela_grau_instrucao)
-
-cat("\n### Total de Eleitores por Município e Grau de Instrução ###\n")
-print(tabela_municipio_grau_instrucao)
+# -------------------------
+# Exemplo no loop
+# -------------------------
+for (cidade in names(arquivos)) {
+  # Carrega e processa o dataset
+  file_path <- arquivos[[cidade]]
+  df_inicial <- carregar_dataset(file_path)
+  df_reduzido <- reduzir_dataset(df_inicial)
+  df_filtrado <- filtrar_invalidos(df_reduzido)
+  
+  # Executa agrupamentos
+  agrupamentos <- agrupar_temporais(df_filtrado)
+  
+  # Salva o resultado para a cidade atual
+  resultados[[cidade]] <- agrupamentos
+  
+  cat("\n### Agrupamentos para", cidade, "###\n")
+  for (nome_agrupamento in names(agrupamentos)) {
+    cat("\n### Agrupamento:", nome_agrupamento, "###\n")
+    print(agrupamentos[[nome_agrupamento]])
+  }
+}

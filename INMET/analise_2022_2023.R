@@ -1,6 +1,9 @@
 library(dplyr)
 library(lubridate)
 
+# Carregar as funções do arquivo funcoes_dataset.R
+source("INMET/funcoes_dataset.R")
+
 # -------------------------
 # Caminhos dos arquivos
 # -------------------------
@@ -39,12 +42,15 @@ calcular_media_anual <- function(file_path) {
   df_filtrado <- df_filtrado %>%
     filter(!is.na(TEMPERATURA_DO_AR_BULBO_SECO) &
              !is.na(TEMPERATURA_MAXIMA_NA_HORA_ANT) &
-             !is.na(TEMPERATURA_MINIMA_NA_HORA_ANT))
+             !is.na(TEMPERATURA_MINIMA_NA_HORA_ANT) &
+            (TEMPERATURA_DO_AR_BULBO_SECO < 60)&
+            (TEMPERATURA_MAXIMA_NA_HORA_ANT < 60)&
+            (TEMPERATURA_MINIMA_NA_HORA_ANT < 60))
   
   # Calcular médias anuais
   medias_anuais <- df_filtrado %>%
     summarise(
-      Media_Temp_Ponto_Orvalho = mean(TEMPERATURA_DO_AR_BULBO_SECO, na.rm = TRUE),
+      Media_Temp_ambiente = mean(TEMPERATURA_DO_AR_BULBO_SECO, na.rm = TRUE),
       Media_Temp_Max = mean(TEMPERATURA_MAXIMA_NA_HORA_ANT, na.rm = TRUE),
       Media_Temp_Min = mean(TEMPERATURA_MINIMA_NA_HORA_ANT, na.rm = TRUE)
     )

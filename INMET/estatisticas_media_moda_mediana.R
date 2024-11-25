@@ -7,6 +7,12 @@ source("INMET/funcoes_dataset.R")
  file_path_rio_de_janeiro <- "csvs/INMET_SE_RJ_A621_RIO DE JANEIRO - VILA MILITAR_01-01-2023_A_31-12-2023.CSV"
  file_path_sao_paulo <- "csvs/INMET_SE_SP_A701_SAO PAULO - MIRANTE_01-01-2023_A_31-12-2023.CSV"
 
+ # Função para calcular a moda
+ calcular_moda <- function(vetor) {
+   unique_vetor <- unique(vetor)
+   unique_vetor[which.max(tabulate(match(vetor, unique_vetor)))]
+ }
+ 
  # -------------------------
  # 1. Lista de arquivos e cidades
  # -------------------------
@@ -90,6 +96,8 @@ source("INMET/funcoes_dataset.R")
      estatisticas_ponto_min = estatisticas_ponto_min
    )
  }
+ 
+
  
  # -------------------------
  # 3. Exibir os resultados

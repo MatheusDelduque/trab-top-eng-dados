@@ -1,6 +1,7 @@
 library(lubridate)
 library(dplyr)
 library(ggplot2)
+library(openxlsx)
 # Carregar as funções do arquivo funcoes_dataset.R
 source("INMET/funcoes_dataset.R")
 
@@ -144,6 +145,9 @@ agrupar_temporais <- function(df,cidade) {
 # -------------------------
 # Exemplo no loop
 # -------------------------
+# -------------------------
+# Exemplo no loop
+# -------------------------
 for (cidade in names(arquivos)) {
   # Carrega e processa o dataset
   file_path <- arquivos[[cidade]]
@@ -163,4 +167,24 @@ for (cidade in names(arquivos)) {
     print(agrupamentos[[nome_agrupamento]])
     # Transformando os dados para o formato longo
   }
+}
+
+output_folder <- "agrupamentos_excel"
+dir.create(output_folder, showWarnings = FALSE)  # Criar a pasta, se não existir
+
+for (cidade in names(resultados)) {
+  # Criar um novo workbook para cada cidade
+  workbook <- createWorkbook()
+  
+  # Adicionar as tabelas de cada agrupamento como abas
+  for (nome_agrupamento in names(resultados[[cidade]])) {
+    addWorksheet(workbook, nome_agrupamento)
+    writeData(workbook, nome_agrupamento, resultados[[cidade]][[nome_agrupamento]])
+  }
+  
+  # Salvar o arquivo Excel na pasta de saída
+  output_file <- file.path(output_folder, paste0(cidade, "_agrupamentos.xlsx"))
+  saveWorkbook(workbook, output_file, overwrite = TRUE)
+  
+  cat("Arquivo Excel gerado para", cidade, "em:", output_file, "\n")
 }
